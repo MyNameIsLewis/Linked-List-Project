@@ -1,6 +1,4 @@
-/* TO DO
-	1. Change the format of the code so that it decrements the Taken value instead of setting it to false
-*/
+
 #include <iostream>
 #include <assert.h>
 #include <string>
@@ -14,7 +12,7 @@ class Book
 public:
 	Book(string nameParam, string authorParam, double ISBNparam, int takenParam);
 	int getTaken() const { return taken; }
-	void setTaken(Book* takenParam) {taken = takenParam;}
+	void setTaken(int takenParam) {taken = takenParam;}
 	string getName() const { return name; }
 	string getAuthor() const { return author; }
 	double getISBN() const { return ISBN; }
@@ -29,12 +27,21 @@ public:
 	{
 		current = currentParam;
 	}
+	void setTakenIncrement(Book* toBeIncrementedParam)
+	{
+		taken++;
+	}
+
+	void setTakenDecrement(Book* toBeIncrementedParam)
+	{
+		taken--;
+	}
 
 private:
 	string name;
 	string author;
 	double ISBN;
-	bool taken;
+	int taken;
 	Book* next;
 	Book* previous; //Previous book on the list
 	Book* current; //Current book on the list
@@ -177,28 +184,32 @@ int main()
 	Book *fowl = new Book("A.Fowl", "Colfer", 6623178742, 0);
 	Book *cookBook = new Book("A.Harriot's greatest dishes", "Harriot", 45583178742, 0);
 	Book *moby = new Book("M.Dick", "Melville", 3674874842, 1);
-	/*
-	Book *potter1 = new Book("P", "R", 2);
-	Book *bfg1 = new Book("B", "D", 4);
-	Book *fowl1 = new Book("A", "C", 6);
-	Book *cookBook1 = new Book("A", "H", 4);
-	Book *moby1 = new Book("M", "M", 3);
-	*/
+	
+	Book *potter1 = new Book("P", "R", 2, 2);
+	Book *bfg1 = new Book("B", "D", 4, 3);
+	Book *fowl1 = new Book("A", "C", 6, 4);
+	Book *cookBook1 = new Book("AA", "H", 4, 2);
+	Book *moby1 = new Book("M", "M", 3, 2);
+	
 	potter->setNext(bfg);
 	bfg->setNext(fowl);
 	fowl->setNext(cookBook);
 	cookBook->setNext(moby);
-	/*
+
 	potter1->setNext(bfg1);
 	bfg1->setNext(fowl1);
 	fowl1->setNext(cookBook1);
 	cookBook1->setNext(moby1);
-	*/
+	
 	string authorInput;
 	string nameInput;
 	double ISBNInput;
 	int chooseInput;
 	char decisionInput;
+	string removeInput;
+	string frontInput;
+	string beforeInput;
+	string inFrontInput;
 	int password;
 
 
@@ -267,7 +278,21 @@ int main()
 		cin >> password;
 		if (password == 12345)
 		{
-			cout << "Welcome back!" << endl << "Please enter the ID of the book you wish to add, the book before it and the book after it" << endl;
+			cout << "Welcome back!" << endl << endl; 
+			printBookDetails(potter1);
+			cout << endl << endl<< "Please enter the ID of the book you wish to add, the book before it and the book after it" << endl;
+			cin >> removeInput;
+			cin >> beforeInput;
+			cin >> frontInput;
+			Book* remove = searchForBookName(removeInput, potter1);
+			Book* before = searchForBookName(beforeInput, potter1);
+			Book* front = searchForBookName(frontInput, potter1);
+			removeBook(remove, before, front);
+			cout << endl << "Great, what book in the list do you want this book to go after?" << endl;
+			cin >> inFrontInput;
+			Book* inFront = searchForBookName(inFrontInput, potter);
+			addInFront(remove, inFront);
+			cout << endl << "Book has been added!" << endl;
 		}
 	}
 	if (chooseInput == 3)
@@ -276,7 +301,17 @@ int main()
 		cin >> password;
 		if (password == 12345)
 		{
-			cout << "Welcome back!" << endl << "Please enter the ID of the book you wish to add, the book before it and the book after it" << endl;
+			cout << "Welcome back!" << endl << endl; 
+			printBookDetails(potter);
+			cout << endl << endl<< "Please enter the ID of the book you wish to add, the book before it and the book after it" << endl;
+			cin >> removeInput;
+			cin >> beforeInput;
+			cin >> frontInput;
+			Book* remove = searchForBookName(removeInput, potter);
+			Book* before = searchForBookName(beforeInput, potter);
+			Book* front = searchForBookName(frontInput, potter);
+			removeBook(remove, before, front);
+			cout << endl << "Book has been removed" << endl;
 		}
 	}
 	
@@ -290,18 +325,23 @@ int main()
 			cout << "Please enter the name of the book you wish to rent" << endl;
 			cin >> nameInput;
 			Book* found = searchForBookName(nameInput, potter);
+			int currentTaken = found->getTaken();
 			if (found != NULL)
 			{
 				cout << "Found Book: " << found->getName() << endl << "Do you wish to rent this book?";
 				cin >> decisionInput;
 				if (decisionInput == 'Y' || 'y')
 				{
-					found->setTaken(false);
+					found->setTakenDecrement(found);
 					cout << "Book has been rented" << endl << endl;
 				}
 				else if (decisionInput == 'N'|| 'n')
 				{
 					cout << "Please try again." << endl << endl;
+				}
+				else if (currentTaken == 0)
+				{
+					cout << "The book is currently unavailable right now, please check back later" << endl << endl;
 				}
 			}
 			else
@@ -320,7 +360,7 @@ int main()
 				cin >> decisionInput;
 				if (decisionInput == 'Y' || 'y')
 				{
-					found->setTaken(true);
+					found->setTakenIncrement(found);
 					cout << "Book has been returned" << endl << endl;
 				}
 				else if (decisionInput == 'N'|| 'n')
