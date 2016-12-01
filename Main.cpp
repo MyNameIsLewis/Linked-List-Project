@@ -6,7 +6,28 @@
 
 using namespace std;
 
-
+class User
+{
+public:
+	User(string nameParam); //Constructor
+	string getName() const { return name; }
+	User* getNext() const { return next; }
+	void setNext(User* nextParam) { next = nextParam; }
+	User* getPrevious() const { return previous; }
+	void setPrevious(User* previousParam)
+	{
+		previous = previousParam;
+	}
+	void setCurrent(User* currentParam)
+	{
+		current = currentParam;
+	}
+private:
+	string name;
+	User* next;
+	User* previous; //Previous user on the list
+	User* current; //Current user on the list
+};
 class Book
 {
 public:
@@ -50,6 +71,11 @@ private:
 
 Book::Book(string nameParam, string authorParam, double ISBNparam, int takenParam)
 	:name(nameParam), author(authorParam), ISBN(ISBNparam), taken(takenParam)
+{
+	next = NULL;
+}
+
+User::User(string nameParam):name(nameParam)
 {
 	next = NULL;
 }
@@ -162,6 +188,24 @@ Book* searchForBookName(string nameParam, Book* first)
 	}
 	return NULL;
 }
+
+User* searchForUserName(string nameParam, User* first)
+{
+	//Searches for User using the name
+	User* nextUser = first;
+	while (nextUser != NULL)
+	{
+		if (nameParam == nextUser->getName())
+		{
+			return nextUser;
+		}
+		else
+		{
+			nextUser = nextUser->getNext();
+		}
+	}
+	return NULL;
+}
 /*
 ->Search by one letter
 ->Return partial book in partial list
@@ -188,17 +232,24 @@ Book* searchPartial(string nameParam, Book* first)
 int main()
 {
 	//Creates a list of book objects
-	Book *potter = new Book("Potter", "Rowling", 24554864682, 1);
-	Book *bfg = new Book("BFG", "Dahl", 4853480421, 1);
-	Book *fowl = new Book("A.Fowl", "Colfer", 6623178742, 0);
-	Book *cookBook = new Book("A.Harriot's greatest dishes", "Harriot", 45583178742, 0);
-	Book *moby = new Book("M.Dick", "Melville", 3674874842, 1);
+	Book *potter = new Book("Potter", "Rowling", 24554864682, 21);
+	Book *bfg = new Book("BFG", "Dahl", 4853480421, 12);
+	Book *fowl = new Book("A.Fowl", "Colfer", 6623178742, 10);
+	Book *cookBook = new Book("A.Harriot's greatest dishes", "Harriot", 45583178742, 20);
+	Book *moby = new Book("M.Dick", "Melville", 3674874842, 17);
 
-	Book *potter1 = new Book("P", "R", 2, 2);
-	Book *bfg1 = new Book("B", "D", 4, 3);
-	Book *fowl1 = new Book("A", "C", 6, 4);
-	Book *cookBook1 = new Book("AA", "H", 4, 2);
-	Book *moby1 = new Book("M", "M", 3, 2);
+	Book *potter1 = new Book("P", "R", 2, 12);
+	Book *bfg1 = new Book("B", "D", 4, 13);
+	Book *fowl1 = new Book("A", "C", 6, 14);
+	Book *cookBook1 = new Book("AA", "H", 4, 12);
+	Book *moby1 = new Book("M", "M", 3, 12);
+
+	//Creates a list of Users
+	User *dave = new User("Dave");
+	User *sarah = new User("Sarah");
+	User *paul = new User("Paul");
+	User *luke = new User("Luke");
+	User *diane = new User("Diane");
 	
 	//Main book list
 	potter->setNext(bfg);
@@ -212,6 +263,12 @@ int main()
 	fowl1->setNext(cookBook1);
 	cookBook1->setNext(moby1);
 
+	//User list
+	dave->setNext(sarah);
+	sarah->setNext(paul);
+	paul->setNext(luke);
+	luke->setNext(diane);
+
 	//Variables
 	string authorInput;
 	string nameInput;
@@ -222,13 +279,14 @@ int main()
 	string frontInput;
 	string beforeInput;
 	string inFrontInput;
+	string userInput;
 	int password;
 
 
 	while (1 < 2)
 	{
-		cout << "Hello! Please tell me what to do!" << endl << "Press 1 for Book Search" << endl << "Press 2 for book addition (Requires admin login)" << endl << "Press 3 for Book Deletion (Requires admin login)" << endl << "Press 4 for Book rental/return"
-			<< endl << "Press 5 if you wish to print the details of the books" << endl << "Press 6 to quit";
+		cout << "Hello! Welcome to the book shop! Please tell me what to do!" << endl << "Press 1 for Book Search" << endl << "Press 2 for Book addition (Requires admin login)" << endl << "Press 3 for Book Deletion (Requires admin login)" << endl << "Press 4 for Book rental/return"
+			<< endl << "Press 5 if you wish to print the details of the books" << endl << "Press 6 to quit" << endl;
 		cin >> chooseInput;
 
 		if (chooseInput == 1)
@@ -332,8 +390,18 @@ int main()
 
 		if (chooseInput == 4)
 		{
+			//Searches for users
+			cout << "Please enter username" << endl;
+			cin >> userInput;
+			User* found = searchForUserName(userInput, dave);
+			if (found == NULL)
+			{
+				cout << "User not found, please try again." << endl <<endl;
+			}
+			else
+			{
 			//Starts book rental or returning
-			cout << "First, please choose if you are returning or renting a book" << endl << "Press 1 for rental" << endl << "Press 2 for returning";
+			cout << "Welcome back!" << endl <<"First, please choose if you are returning or renting a book" << endl << "Press 1 for rental" << endl << "Press 2 for returning";
 			cin >> chooseInput;
 
 			if (chooseInput == 1)
@@ -391,6 +459,7 @@ int main()
 					cout << "Book not found." << endl << endl;
 				}
 			}
+		}
 		}
 
 		if (chooseInput == 5)
